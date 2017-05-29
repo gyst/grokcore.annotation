@@ -61,6 +61,17 @@ Note how the default schema value for the lazy attribute still "responds":
   >>> str(lazyannotation.lazy_attribute)
   'lazily waiting for a value.'
 
+Using a LazyAnnotationProperty on an invalid context:
+
+  >>> broken = IBroken(manfred)
+  >>> broken.broken_attribute
+  <grokcore.annotation.lazy.LazyAnnotationProperty object at ...>
+
+  >>> broken.broken_attribute = 'not this'
+  Traceback (most recent call last):
+  ...
+  ValueError: ('lazy_attribute', 'invalid context')
+
 """
 
 import grokcore.annotation as grok
@@ -85,4 +96,19 @@ class Lazy(grok.LazyAnnotation):
     grok.provides(ILazy)
 
     lazy_attribute = grok.LazyAnnotationProperty(
+        ILazy['lazy_attribute'])
+
+
+class IBroken(interface.Interface):
+
+    lazy_attribute = schema.TextLine(
+        title=u'So, so lazy', default=u'lazily waiting for a value.')
+
+
+class Broken(grok.Annotation):
+    grok.implements(IBroken)
+    grok.name('lazy.annotation.broken')
+    grok.provides(IBroken)
+
+    broken_attribute = grok.LazyAnnotationProperty(
         ILazy['lazy_attribute'])
